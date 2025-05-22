@@ -28,6 +28,7 @@ public class PublisherGenreCountryAvg extends Configured implements Tool {
 
         Path input = new Path("in/video_games_sales.csv");
         Path output = new Path("output/PublisherGenreCountryAvg");
+        Path inputJob2 = new Path("output/PublisherGenreCountryAvg.txt");
 
         Job job1 = Job.getInstance(conf, "Publisher-Genre-Country-Avg");
 
@@ -47,22 +48,23 @@ public class PublisherGenreCountryAvg extends Configured implements Tool {
 
 
 
+
         boolean job1Success = job1.waitForCompletion(true);
 
         if (!job1Success) {
-            System.err.println("Job 1 failed");
+            System.out.println("Failed to execute Job 1");
             return 1;
         }
 
         Job job2 = Job.getInstance(conf, "Publisher-Avg");
 
-        FileInputFormat.addInputPath(job2, input);
+        FileInputFormat.addInputPath(job2, inputJob2);
         FileSystem.get(conf).delete(output, true);
         FileOutputFormat.setOutputPath(job2, output);
 
-        job2.setMapperClass(MapperCombinerReducerJob2.CountryGenrePublisherAvgMapper.class);
-        job2.setReducerClass(MapperCombinerReducerJob2.CountryGenrePublisherCombiner.class);
-        job2.setReducerClass(MapperCombinerReducerJob2.CountryGenrePublisherAvgReducer.class);
+        job2.setMapperClass(MapperReducerJob2.TopPublisherMapper.class);
+        job2.setReducerClass(MapperReducerJob2.TopPublisherReducer.class);
+
 
         job2.setMapOutputKeyClass(CountryGenrePublisherKey.class);
         job2.setMapOutputValueClass(CountryGenrePublisherValue.class);

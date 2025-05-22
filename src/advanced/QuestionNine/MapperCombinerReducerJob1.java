@@ -1,5 +1,6 @@
 package advanced.QuestionNine;
 
+import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -58,26 +59,28 @@ public class MapperCombinerReducerJob1 {
         }
     }
 
-    public static class CountryGenrePublisherAvgReducer extends Reducer<CountryGenrePublisherKey, CountryGenrePublisherValue, CountryGenrePublisherKey, Text>{
+    public static class CountryGenrePublisherAvgReducer extends Reducer<CountryGenrePublisherKey, CountryGenrePublisherValue, Text, FloatWritable> {
         @Override
-        protected void reduce(CountryGenrePublisherKey key, Iterable<CountryGenrePublisherValue> values,
+        public void reduce(CountryGenrePublisherKey key, Iterable<CountryGenrePublisherValue> values,
                               Context context) throws IOException, InterruptedException {
             String publisherAvg = null;
             double topMedia = Double.MIN_VALUE;
 
             for (CountryGenrePublisherValue value : values) {
-                double mediaActual = value.getSales() / value.getCount();
+                double mediaAtual = value.getSales() / value.getCount();
 
-                if (mediaActual > topMedia) {
-                    topMedia = mediaActual;
+                if (mediaAtual > topMedia) {
+                    topMedia = mediaAtual;
                     publisherAvg = value.getPublisher();
                 }
             }
 
             if (publisherAvg != null) {
-                String resultFormat = String.format("%s\t%.2f", publisherAvg, topMedia);
-                context.write(key, new Text(resultFormat));
+                String keyFinal = String.format("%s\t%s\t%s", key.getCountry(), key.getGenre(), publisherAvg);
+                context.write(new Text(keyFinal), new FloatWritable((float) topMedia));
             }
         }
     }
+
+
 }
