@@ -27,8 +27,8 @@ public class PublisherGenreCountryAvg extends Configured implements Tool {
         Configuration conf = new Configuration();
 
         Path input = new Path("in/video_games_sales.csv");
-        Path output = new Path("output/PublisherGenreCountryAvg");
-        Path inputJob2 = new Path("output/PublisherGenreCountryAvg.txt");
+        Path output = new Path("output/job1");
+        Path outputJob2 = new Path("output/job2");
 
         Job job1 = Job.getInstance(conf, "Publisher-Genre-Country-Avg");
 
@@ -58,9 +58,9 @@ public class PublisherGenreCountryAvg extends Configured implements Tool {
 
         Job job2 = Job.getInstance(conf, "Publisher-Avg");
 
-        FileInputFormat.addInputPath(job2, inputJob2);
+        FileInputFormat.addInputPath(job2, output);
         FileSystem.get(conf).delete(output, true);
-        FileOutputFormat.setOutputPath(job2, output);
+        FileOutputFormat.setOutputPath(job2, outputJob2);
 
         job2.setMapperClass(MapperReducerJob2.TopPublisherMapper.class);
         job2.setReducerClass(MapperReducerJob2.TopPublisherReducer.class);
